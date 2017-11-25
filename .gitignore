@@ -1,0 +1,5 @@
+#Ignorar
+/yourenv
+*.txt
+*.sql
+*.csv
