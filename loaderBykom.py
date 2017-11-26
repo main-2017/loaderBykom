@@ -97,19 +97,23 @@ def cargaTelefonos():
 	for line in loaderFile.readlines():
 		posCadena = line.split(",")
 		tel_iidcuenta = posCadena[0].strip("(")
-		print(tel_iidcuenta)
 		tel_iid = posCadena[1]
-		print(tel_iid)
+		print("Tel ID: ",type(tel_iid), " Cadena: ",tel_iid)
+		tel_iid = tel_iid.strip()
+		tel_iid = int(tel_iid)
+		print("Tel ID: ",type(tel_iid), " Cadena: ",tel_iid)
+		# tel_iid = int(float(tel_iid))
+		print("Pos convert: ", type(tel_iid))
 		tel_cnombre = posCadena[2]
 		tel_cobservacion = posCadena[3]
 		tel_ctelefono = posCadena[4]
-		#query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono) VALUES(%d,%d,%s,%s,%s)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono)
-		# try:
-		# 	cursor_origen.execute(query_insert_tel)
-		# 	db_origin.commit()
-		# except:
-		# 	db_origin.rollback()
-		# 	print("Error al insertar el registro en la cuenta ", tel_iidcuenta)
+		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono) VALUES(%s,%s,%s,%s,%s)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono)
+		try:
+			cursor_origen.execute(query_insert_tel)
+			db_origin.commit()
+		except:
+			db_origin.rollback()
+			print("Error al insertar el registro en la cuenta ", tel_iidcuenta)
 		# print("Cuenta: ",tel_iidcuenta ,"| Tel ID: ",tel_iid,"| Nombre: ",tel_cnombre , "| Observacion: ", tel_cobservacion, "| Telefono: ", tel_ctelefono)
 	
 def imprimeMenu(): 
