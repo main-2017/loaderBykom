@@ -92,29 +92,26 @@ def formatearDatosUsuariosSoftguard(cursor_origin, cursor_destiny):
 
 	return nombre,apellido,ids
 
-def cargaTelefonos():
-	loaderFile = open("m_telefonos.sql", "r", encoding='UTF8')
+def cargaTelefonos(loaderFile):
 	for line in loaderFile.readlines():
 		posCadena = line.split(",")
-		tel_iidcuenta = posCadena[0].strip("(")
-		tel_iid = posCadena[1]
-		print("Tel ID: ",type(tel_iid), " Cadena: ",tel_iid)
-		tel_iid = tel_iid.strip()
-		tel_iid = int(tel_iid)
-		print("Tel ID: ",type(tel_iid), " Cadena: ",tel_iid)
-		# tel_iid = int(float(tel_iid))
-		print("Pos convert: ", type(tel_iid))
+		tel_iidcuenta = int(posCadena[0].strip("("))
+		tel_iid = int(posCadena[1])
 		tel_cnombre = posCadena[2]
 		tel_cobservacion = posCadena[3]
 		tel_ctelefono = posCadena[4]
-		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono) VALUES(%s,%s,%s,%s,%s)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono)
+		tel_ndiscado = 1
+		tel_cpredigito = 0
+		tel_cposdigito = 0
+		tel_norden = 1
+		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES(%d,%d,%s,%s,%s,%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
 		try:
 			cursor_origen.execute(query_insert_tel)
 			db_origin.commit()
 		except:
 			db_origin.rollback()
 			print("Error al insertar el registro en la cuenta ", tel_iidcuenta)
-		# print("Cuenta: ",tel_iidcuenta ,"| Tel ID: ",tel_iid,"| Nombre: ",tel_cnombre , "| Observacion: ", tel_cobservacion, "| Telefono: ", tel_ctelefono)
+		print("Cuenta: ",tel_iidcuenta ,"| Tel ID: ",tel_iid,"| Nombre: ",tel_cnombre , "| Observacion: ", tel_cobservacion, "| Telefono: ", tel_ctelefono)
 	
 def imprimeMenu(): 
 	
@@ -187,6 +184,7 @@ if __name__ == '__main__':
 			# Falta informacion en tabla
 		elif opcion == 7:
 			limpiarPantallaTitular("________________________________ Carga masiva de Telefonos en Bykom ________________________________")
-			cargaTelefonos()
+			loaderFile = open("m_telefonos.sql", "r", encoding='UTF8')
+			cargaTelefonos(loaderFile)
 
 
