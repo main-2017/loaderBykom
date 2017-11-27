@@ -104,14 +104,20 @@ def cargaTelefonos(loaderFile):
 		tel_cpredigito = 0
 		tel_cposdigito = 0
 		tel_norden = 1
-		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES(%d,%d,%s,%s,%s,%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
+		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES (%d,%d,'%s','%s','%s',%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
+		print("Insertando registros...")
 		try:
-			cursor_origen.execute(query_insert_tel)
+			cursor_origin.execute(query_insert_tel)
 			db_origin.commit()
+			flag = True
 		except:
 			db_origin.rollback()
 			print("Error al insertar el registro en la cuenta ", tel_iidcuenta)
-		print("Cuenta: ",tel_iidcuenta ,"| Tel ID: ",tel_iid,"| Nombre: ",tel_cnombre , "| Observacion: ", tel_cobservacion, "| Telefono: ", tel_ctelefono)
+			flag = False
+	if flag:
+		print("_____________________________________ Registros insertados con exito _____________________________________")
+	else:
+		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
 	
 def imprimeMenu(): 
 	
