@@ -22,7 +22,6 @@ def obtenerListaInterior(cursorOrigen):
 		lista_interna.append(list(lista_int))
 	return lista_interna
 
-
 def obtenerID_CL(id_Cuenta):
 	query_cuentas_usuarios = "SELECT ORDER_ID FROM abmacodigos WHERE ID_CL = %d" %(id_Cuenta)
 	cursor_destiny.execute(query_cuentas_usuarios)
@@ -47,8 +46,6 @@ def obtenerUsuariosSoftguard(idCuenta):
 def actualizacionCodigosBykom(nombre, apellido, ids):
 	for n,a,i in zip(nombre,apellido,ids):
 		update_nombre_destiny = "UPDATE abmacodigos SET NOMBRE = '%s', NOMBRE_DOS = '%s' WHERE ID_CL = %d" %(a,n,i)
-		
-		
 		try:
 			cursor_destiny.execute(update_nombre_destiny)
 			db_destiny.commit()
@@ -83,7 +80,6 @@ def formatearDatosUsuariosSoftguard(cursor_origin, cursor_destiny):
 		ids.append(index[0])
 		nombre_mix.append(index[1])
 
-
 	for row in nombre_mix:
 		meta_nombre = str(row)
 		pos = meta_nombre.find(" ")
@@ -93,6 +89,7 @@ def formatearDatosUsuariosSoftguard(cursor_origin, cursor_destiny):
 	return nombre,apellido,ids
 
 def cargaTelefonos(loaderFile):
+	point = ""
 	for line in loaderFile.readlines():
 		posCadena = line.split(",")
 		tel_iidcuenta = int(posCadena[0].strip("("))
@@ -105,7 +102,8 @@ def cargaTelefonos(loaderFile):
 		tel_cposdigito = 0
 		tel_norden = 1
 		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES (%d,%d,'%s','%s','%s',%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
-		print("Insertando registros...")
+		point += "."
+		print("Insertando registros", point)
 		try:
 			cursor_origin.execute(query_insert_tel)
 			db_origin.commit()
