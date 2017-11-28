@@ -91,6 +91,7 @@ def formatearDatosUsuariosSoftguard(cursor_origin, cursor_destiny):
 def cargaTelefonos(loaderFile):
 	point = ""
 	for line in loaderFile.readlines():
+		os.system("clear")
 		posCadena = line.split(",")
 		tel_iidcuenta = int(posCadena[0].strip("("))
 		tel_iid = int(posCadena[1])
@@ -104,6 +105,8 @@ def cargaTelefonos(loaderFile):
 		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES (%d,%d,'%s','%s','%s',%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
 		point += "."
 		print("Insertando registros", point)
+		if point == "....":
+			point = ""
 		try:
 			cursor_origin.execute(query_insert_tel)
 			db_origin.commit()
@@ -125,12 +128,12 @@ def imprimeMenu():
 	print("______________________________________________________________________________________________")
 	print()
 	print("Seleccione una opción: ")
-	print("1.- Formatear datos de cuentas de Softguard y cargar en Bykom por numero de Orden en cuenta de Bykom")
+	print("1.- Formatear datos de cuentas de Softguard y cargar en Bykom por numero de Orden")
 	print("3.- Obtener Usuarios de cuenta en Bykom")
 	print("4.- Obtener Usuarios de cuenta en Softguard")
 	print("5.- Carga masiva en Tabla Personas de Bykom")
 	print("6.- Carga masiva de Usuarios en Bykom") # Falta informacion en tabla
-	print("7.- Carga masiva de Telefonos en Bykom")
+	print("7.- Carga masiva de Telefonos en Softguard")
 	print("8.- Carga masiva de zonas en Bykom")
 	print("9.- Realizar query")
 	print("99.- Salir")
