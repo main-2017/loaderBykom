@@ -1,7 +1,13 @@
 # Sistema para migracion de sistema de SoftGuard a Bykom Realizado por Agustin Ducca Pantaleon
 
+#Importacion de modulos
+
 import mysql.connector
 import os
+import time
+import re
+
+#Definicion de Funciones
 
 def conexionDefault(bd):
 	host = "localhost"
@@ -88,7 +94,7 @@ def formatearDatosUsuariosSoftguard(cursor_origin, cursor_destiny):
 
 	return nombre,apellido,ids
 
-def cargaTelefonos(loaderFile):
+def cargaTelefonosSoftguard(loaderFile):
 	point = ""
 	for line in loaderFile.readlines():
 		os.system("clear")
@@ -120,6 +126,40 @@ def cargaTelefonos(loaderFile):
 	else:
 		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
 	
+def cargaTelefonosBykom(loaderFile):
+	patronAlpha = re.compile("[A-Z]+")
+	os.system("clear")
+	i = 1
+	flag = False
+	print("Insertando registros...")
+	for line in loaderFile.readlines():
+		posCadena = line.split(",")
+		order_id = i
+		order_rl = int(posCadena[0].strip("("))
+		orden = 1
+		tipotelefono = 1
+		areacode = 100000000
+		telefono = posCadena[4].strip()
+		if patronAlpha.match(telefono):
+			telefono = posCadena[5]
+		predigito = 0
+		posdigito = 0
+		query_insert_tel = "INSERT INTO tlrlpersonas(ORDER_ID, ORDER_RL, ORDEN, TIPOTELEFONO, AREACODE, TELEFONO, PREDIGITO, POSTDIGITO) VALUES (%d,%d,%d,%d,%d,'%s',%d,%d)" %(order_id, order_rl, orden, tipotelefono, areacode, telefono, predigito, posdigito)
+		
+		try:
+			cursor_destiny.execute(query_insert_tel)
+			db_destiny.commit()
+			flag = True
+		except:
+			db_destiny.rollback()
+			print("Error al insertar el registro en la cuenta ", order_rl)
+			flag = False
+		i+=1
+	if flag:
+		print("_____________________________________ Registros insertados con exito _____________________________________")
+	else:
+		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
+
 def imprimeMenu(): 
 	
 	print("______________________________________________________________________________________________")
@@ -134,8 +174,9 @@ def imprimeMenu():
 	print("5.- Carga masiva en Tabla Personas de Bykom")
 	print("6.- Carga masiva de Usuarios en Bykom") # Falta informacion en tabla
 	print("7.- Carga masiva de Telefonos en Softguard")
-	print("8.- Carga masiva de zonas en Bykom")
-	print("9.- Realizar query")
+	print("8.- Carga masiva de Telfonos en Bykom")
+	print("9.- Carga masiva de zonas en Bykom")
+	print("10.- Realizar query")
 	print("99.- Salir")
 
 def limpiarPantallaTitular(mensaje):
@@ -143,7 +184,7 @@ def limpiarPantallaTitular(mensaje):
 	print(mensaje)
 	print()
 
-
+#Metodo principal
 	
 if __name__ == '__main__':
 
@@ -190,8 +231,11 @@ if __name__ == '__main__':
 			limpiarPantallaTitular("________________________________ Carga masiva de Usuarios en Bykom ________________________	________")
 			# Falta informacion en tabla
 		elif opcion == 7:
-			limpiarPantallaTitular("________________________________ Carga masiva de Telefonos en Bykom ________________________________")
+			limpiarPantallaTitular("________________________________ Carga masiva de Telefonos en Softguard ________________________________")
 			loaderFile = open("m_telefonos.sql", "r", encoding='UTF8')
-			cargaTelefonos(loaderFile)
-
+			cargaTelefonosSoftguard(loaderFile)
+		elif opcion == 8:
+			limpiarPantallaTitular("_____________________________________ Carga masiva de Telefonos en Bykom _____________________________________")
+			loaderFileB = open("m_telefonos.sql", "r", encoding='UTF8')
+			cargaTelefonosBykom(loaderFileB)
 
