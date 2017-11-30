@@ -160,6 +160,47 @@ def cargaTelefonosBykom(loaderFile):
 	else:
 		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
 
+def cargaUsuariosSoftguard(loaderFile):
+	for line in loaderFile.readlines():
+		os.system("clear")
+		posCadena = line.split(",")
+		print(posCadena)
+		# usu_iidcuenta
+		# usu_icodigo
+		# usu_cnombre
+		# usu_iid
+		# usu_cclave
+		# usu_ntipo
+		# usu_cimagen
+		# usu_mobservacion
+		
+	# 	tel_iidcuenta = int(posCadena[0].strip("("))
+	# 	tel_iid = int(posCadena[1])
+	# 	tel_cnombre = posCadena[2]
+	# 	tel_cobservacion = posCadena[3]
+	# 	tel_ctelefono = posCadena[4]
+	# 	tel_ndiscado = 1
+	# 	tel_cpredigito = 0
+	# 	tel_cposdigito = 0
+	# 	tel_norden = 1
+	# 	query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES (%d,%d,'%s','%s','%s',%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
+	# 	point += "."
+	# 	print("Insertando registros", point)
+	# 	if point == "....":
+	# 		point = ""
+	# 	try:
+	# 		cursor_origin.execute(query_insert_tel)
+	# 		db_origin.commit()
+	# 		flag = True
+	# 	except:
+	# 		db_origin.rollback()
+	# 		print("Error al insertar el registro en la cuenta ", tel_iidcuenta)
+	# 		flag = False
+	# if flag:
+	# 	print("_____________________________________ Registros insertados con exito _____________________________________")
+	# else:
+	# 	print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
+
 def imprimeMenu(): 
 	
 	print("______________________________________________________________________________________________")
@@ -175,7 +216,7 @@ def imprimeMenu():
 	print("6.- Carga masiva de Usuarios en Bykom") # Falta informacion en tabla
 	print("7.- Carga masiva de Telefonos en Softguard")
 	print("8.- Carga masiva de Telfonos en Bykom")
-	print("9.- Carga masiva de zonas en Bykom")
+	print("9.- Carga masiva de Usuarios en SOftguard")
 	print("10.- Realizar query")
 	print("99.- Salir")
 
@@ -238,4 +279,7 @@ if __name__ == '__main__':
 			limpiarPantallaTitular("_____________________________________ Carga masiva de Telefonos en Bykom _____________________________________")
 			loaderFileB = open("m_telefonos.sql", "r", encoding='UTF8')
 			cargaTelefonosBykom(loaderFileB)
-
+		elif opcion == 9:
+			limpiarPantallaTitular("_____________________________________ Carga masiva de Usuarios en Softguard _____________________________________")
+			loaderFileU = open("m_usuarios.sql", "r", encoding='UTF8')
+			cargaUsuariosSoftguard(loaderFileU)
