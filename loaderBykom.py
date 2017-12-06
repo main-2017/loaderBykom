@@ -32,8 +32,12 @@ def obtenerID_CL(id_Cuenta):
 	query_cuentas_usuarios = "SELECT ORDER_ID FROM abmacodigos WHERE ID_CL = %d" %(id_Cuenta)
 	cursor_destiny.execute(query_cuentas_usuarios)
 	result = cursor_destiny.fetchone()
-	lista_result = list(result)
-	str_result = str(lista_result[0])
+	if result != None:
+		lista_result = list(result)
+		str_result = str(lista_result[0])
+	else:
+		print("La cuenta no existe en tabla. Verifique el valor ingresado")
+		str_result = "Inexistente"
 	return str_result
 
 def obtenerUsuariosporCuenta(id_Cuenta):
@@ -160,63 +164,50 @@ def cargaTelefonosBykom(loaderFile):
 	else:
 		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
 
-def cargaUsuariosSoftguard(loaderFile):
+#def cargaUsuariosSoftguard(loaderFile):
+	# A desarrollar
+def cargaUsuariosBykom(loaderFile): #Esto insertara los datos en la tabla abrlusuarios en Bykom
+	os.system("clear")
+	i = 1
 	for line in loaderFile.readlines():
-		os.system("clear")
 		posCadena = line.split(",")
-		print(posCadena)
-		# usu_iidcuenta
-		# usu_icodigo
-		# usu_cnombre
-		# usu_iid
-		# usu_cclave
-		# usu_ntipo
-		# usu_cimagen
-		# usu_mobservacion
+		n_cuenta = int(posCadena[0].strip("("))
+		order_rl = obtenerID_CL(n_cuenta)
+		i += 1
+		#codigo_id  = Tipo de dato desconocido 
+		cod_us  = int(posCadena[3])
+		print("Posicion: ",i, " - ",order_rl, " - ",cod_us)
+		#user_id  = 
+	# clave  = 
+	# contraclave  = 
+	# datos01  = 
+	# tipouser  = 
+	# fechahora = 
+
+def cargaZonasBykom(fileZonas):
+	os.system("clear")
+	for line in fileZonas.readlines():
+		cadena = line.split(",")
 		
-	# 	tel_iidcuenta = int(posCadena[0].strip("("))
-	# 	tel_iid = int(posCadena[1])
-	# 	tel_cnombre = posCadena[2]
-	# 	tel_cobservacion = posCadena[3]
-	# 	tel_ctelefono = posCadena[4]
-	# 	tel_ndiscado = 1
-	# 	tel_cpredigito = 0
-	# 	tel_cposdigito = 0
-	# 	tel_norden = 1
-	# 	query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES (%d,%d,'%s','%s','%s',%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
-	# 	point += "."
-	# 	print("Insertando registros", point)
-	# 	if point == "....":
-	# 		point = ""
-	# 	try:
-	# 		cursor_origin.execute(query_insert_tel)
-	# 		db_origin.commit()
-	# 		flag = True
-	# 	except:
-	# 		db_origin.rollback()
-	# 		print("Error al insertar el registro en la cuenta ", tel_iidcuenta)
-	# 		flag = False
-	# if flag:
-	# 	print("_____________________________________ Registros insertados con exito _____________________________________")
-	# else:
-	# 	print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
 
 def imprimeMenu(): 
 	
 	print("______________________________________________________________________________________________")
 	print()
 	print("------------------------------------ Migración a Bykom ---------------------------------------")
+	print("------------------------------- por Agustin Ducca Pantaleon ----------------------------------")
 	print("______________________________________________________________________________________________")
 	print()
 	print("Seleccione una opción: ")
 	print("1.- Formatear datos de cuentas de Softguard y cargar en Bykom por numero de Orden")
+	print("2.- Obtener Numero de Orden en cuenta de Bykom")
 	print("3.- Obtener Usuarios de cuenta en Bykom")
 	print("4.- Obtener Usuarios de cuenta en Softguard")
 	print("5.- Carga masiva en Tabla Personas de Bykom")
 	print("6.- Carga masiva de Usuarios en Bykom") # Falta informacion en tabla
 	print("7.- Carga masiva de Telefonos en Softguard")
 	print("8.- Carga masiva de Telfonos en Bykom")
-	print("9.- Carga masiva de Usuarios en SOftguard")
+	print("9.- Carga masiva de Usuarios en Softguard")
 	print("10.- Realizar query")
 	print("99.- Salir")
 
@@ -234,7 +225,9 @@ if __name__ == '__main__':
 	db_origin = conexionDefault("softguard")
 	db_destiny = conexionDefault("bykom")
 	cursor_origin = cursorMaker(db_origin)
+	cursor_origin = db_origin.cursor(buffered=True)
 	cursor_destiny = cursorMaker(db_destiny)
+	cursor_destiny = db_destiny.cursor(buffered=True)
 	opcion = 0
 	cuentaIngresada = 0
 
@@ -270,7 +263,8 @@ if __name__ == '__main__':
 			cargaMasivaPersonasBykom(nombre,apellido,ids)
 		elif opcion == 6:
 			limpiarPantallaTitular("________________________________ Carga masiva de Usuarios en Bykom ________________________	________")
-			# Falta informacion en tabla
+			loaderFileU = open("m_usuarios.sql", "r", encoding='latin-1')
+			cargaUsuariosBykom(loaderFileU)
 		elif opcion == 7:
 			limpiarPantallaTitular("________________________________ Carga masiva de Telefonos en Softguard ________________________________")
 			loaderFile = open("m_telefonos.sql", "r", encoding='UTF8')
@@ -281,5 +275,5 @@ if __name__ == '__main__':
 			cargaTelefonosBykom(loaderFileB)
 		elif opcion == 9:
 			limpiarPantallaTitular("_____________________________________ Carga masiva de Usuarios en Softguard _____________________________________")
-			loaderFileU = open("m_usuarios.sql", "r", encoding='UTF8')
+			loaderFileU = open("m_usuarios.sql", "r", encoding='latin-1')
 			cargaUsuariosSoftguard(loaderFileU)
