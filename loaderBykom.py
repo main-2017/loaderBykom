@@ -186,12 +186,28 @@ def cargaUsuariosBykom(loaderFile): #Esto insertara los datos en la tabla abrlus
 
 def cargaZonasBykom(fileZonas):
 	os.system("clear")
+	i = 1
+	flag = False
 	for line in fileZonas.readlines():
 		cadena = line.split(",")
-		
+		order_rl = int(obtenerID_CL(int(cadena[0].strip("("))))
+		n_zona =  (cadena[1].strip()).strip("\"")
+		nombre =  cadena[2].strip()
+		insert_query_zona = "INSERT INTO abrlzonas (ORDER_ID, ORDER_RL, N_ZONA, NOMBRE,TIPOSENIAL,TIPOLISTA) VALUES(%d,%d,%s,%s,33,1)" %(i,order_rl,n_zona,nombre)
+		try:
+			cursor_destiny.execute(insert_query_zona)
+			db_destiny.commit()
+			flag = True
+			print("[INSERTADO] :","Posicion: ",i," Cuenta: ",order_rl," Zona: ",n_zona," Descripcion ", nombre)
+		except:
+			db_destiny.rollback()
+			print("[ERROR]: Posicion: ",i)
+			flag = False
+		i += 1 
+	if not(flag):
+		print("_____________________________________ Ocurrio un problema al insertar los registros _____________________________________")
 
 def imprimeMenu(): 
-	
 	print("______________________________________________________________________________________________")
 	print()
 	print("------------------------------------ Migración a Bykom ---------------------------------------")
@@ -208,7 +224,8 @@ def imprimeMenu():
 	print("7.- Carga masiva de Telefonos en Softguard")
 	print("8.- Carga masiva de Telfonos en Bykom")
 	print("9.- Carga masiva de Usuarios en Softguard")
-	print("10.- Realizar query")
+	print("10.- Cargar zonas en Bykom")
+	print("100.- Realizar query")
 	print("99.- Salir")
 
 def limpiarPantallaTitular(mensaje):
@@ -277,3 +294,7 @@ if __name__ == '__main__':
 			limpiarPantallaTitular("_____________________________________ Carga masiva de Usuarios en Softguard _____________________________________")
 			loaderFileU = open("m_usuarios.sql", "r", encoding='latin-1')
 			cargaUsuariosSoftguard(loaderFileU)
+		elif opcion == 10:
+			limpiarPantallaTitular("_____________________________________ Carga zonas en Bykom _____________________________________")
+			loaderFileZ = open("zonas.sql", "r", encoding='latin-1')
+			cargaZonasBykom(loaderFileZ)
