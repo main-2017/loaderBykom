@@ -187,7 +187,6 @@ def cargaUsuariosBykom(loaderFile): #Esto insertara los datos en la tabla abrlus
 def cargaZonasBykom(fileZonas):
 	os.system("clear")
 	i = 1
-	flag = False
 	for line in fileZonas.readlines():
 		cadena = line.split(",")
 		order_rl = int(obtenerID_CL(int(cadena[0].strip("("))))
@@ -197,15 +196,11 @@ def cargaZonasBykom(fileZonas):
 		try:
 			cursor_destiny.execute(insert_query_zona)
 			db_destiny.commit()
-			flag = True
 			print("[INSERTADO] :","Posicion: ",i," Cuenta: ",order_rl," Zona: ",n_zona," Descripcion ", nombre)
 		except:
 			db_destiny.rollback()
 			print("[ERROR]: Posicion: ",i)
-			flag = False
 		i += 1 
-	if not(flag):
-		print("_____________________________________ Ocurrio un problema al insertar los registros _____________________________________")
 
 def imprimeMenu(): 
 	print("______________________________________________________________________________________________")
@@ -224,7 +219,7 @@ def imprimeMenu():
 	print("7.- Carga masiva de Telefonos en Softguard")
 	print("8.- Carga masiva de Telfonos en Bykom")
 	print("9.- Carga masiva de Usuarios en Softguard")
-	print("10.- Cargar zonas en Bykom")
+	print("10.- Carga zonas en Bykom")
 	print("100.- Realizar query")
 	print("99.- Salir")
 
