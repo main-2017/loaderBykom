@@ -17,7 +17,7 @@ def conexionDefault(bd):
 	return database
 
 def cursorMaker(database):
-	cursor_db = database.cursor()
+	cursor_db = database.cursor(buffered=True)
 	return cursor_db
 
 def obtenerListaInterior(cursorOrigen):
@@ -67,6 +67,7 @@ def actualizacionCodigosBykom(nombre, apellido, ids):
 
 def cargaMasivaPersonasBykom(nombre,apellido,ids):
 	for n,a,i in zip(nombre,apellido,ids):
+		error = open("errores/personasBykom.txt","a")
 		insert_nombre_destiny = "INSERT INTO tlmapersonas(ORDER_ID, NOMBRE, NOMBRE_DOS) VALUES (%d,'%s','%s')" %(i, a, n)
 		try:
 			cursor_destiny.execute(insert_nombre_destiny)
@@ -76,6 +77,9 @@ def cargaMasivaPersonasBykom(nombre,apellido,ids):
 			db_destiny.rollback()
 			os.system('color 04')
 			print("Error durante la carga de datos")
+			textoError = "Linea: ",ids," | Nombre: ", nombre," | Apellido: ",apellido
+			textoError = str(textoError)
+			error.write("\n"+textoError)
 
 def formatearDatosUsuariosSoftguard(cursor_origin, cursor_destiny):
 	query_nombre_origin = "SELECT cue_iid, cue_cnombre FROM _datos ORDER BY cue_iid ASC"
@@ -133,6 +137,7 @@ def cargaTelefonosSoftguard(loaderFile):
 def cargaTelefonosBykom(loaderFile):
 	patronAlpha = re.compile("[A-Z]+")
 	os.system("clear")
+	error = open("errores/telefonosBykom.txt","a")
 	i = 1
 	flag = False
 	print("Insertando registros...")
@@ -157,6 +162,9 @@ def cargaTelefonosBykom(loaderFile):
 		except:
 			db_destiny.rollback()
 			print("Error al insertar el registro en la cuenta ", order_rl)
+			textoError = "Linea: ",i," | Contenido: ",line
+			textoError = str(textoError)
+			error.write("\n"+textoError)
 			flag = False
 		i+=1
 	if flag:
@@ -186,21 +194,35 @@ def cargaUsuariosBykom(loaderFile): #Esto insertara los datos en la tabla abrlus
 
 def cargaZonasBykom(fileZonas):
 	os.system("clear")
+	error = open("errores/zonasBykom.txt", "a")
 	i = 1
 	for line in fileZonas.readlines():
 		cadena = line.split(",")
-		order_rl = int(obtenerID_CL(int(cadena[0].strip("("))))
+		evalOrder = obtenerID_CL(int(cadena[0].strip("("))) 
+		if evalOrder != "Inexistente":
+			order_rl = int(evalOrder)
+		else:
+			order_rl = 0
+			textoError = "Posicion: ",i," No se encuentra ID en tabla | Contenido: ",line
+			textoError = str(textoError)
+			error.write("\n"+textoError)
+			textoError = ''
 		n_zona =  (cadena[1].strip()).strip("\"")
 		nombre =  cadena[2].strip()
 		insert_query_zona = "INSERT INTO abrlzonas (ORDER_ID, ORDER_RL, N_ZONA, NOMBRE,TIPOSENIAL,TIPOLISTA) VALUES(%d,%d,%s,%s,33,1)" %(i,order_rl,n_zona,nombre)
 		try:
 			cursor_destiny.execute(insert_query_zona)
 			db_destiny.commit()
-			print("[INSERTADO] :","Posicion: ",i," Cuenta: ",order_rl," Zona: ",n_zona," Descripcion ", nombre)
+			print("[INSERTADO]: ","Posicion: ",i," Cuenta: ",order_rl," Zona: ",n_zona," Descripcion ", nombre)
 		except:
 			db_destiny.rollback()
 			print("[ERROR]: Posicion: ",i)
+			textoError = "Linea: ",i,"| Contenido: ",line
+			textoError = str(textoError)
+			error.write("\n"+textoError)
+			textoError = ''
 		i += 1 
+	error.close()
 
 def imprimeMenu(): 
 	print("______________________________________________________________________________________________")
@@ -220,7 +242,6 @@ def imprimeMenu():
 	print("8.- Carga masiva de Telfonos en Bykom")
 	print("9.- Carga masiva de Usuarios en Softguard")
 	print("10.- Carga zonas en Bykom")
-	print("100.- Realizar query")
 	print("99.- Salir")
 
 def limpiarPantallaTitular(mensaje):
@@ -237,9 +258,7 @@ if __name__ == '__main__':
 	db_origin = conexionDefault("softguard")
 	db_destiny = conexionDefault("bykom")
 	cursor_origin = cursorMaker(db_origin)
-	cursor_origin = db_origin.cursor(buffered=True)
 	cursor_destiny = cursorMaker(db_destiny)
-	cursor_destiny = db_destiny.cursor(buffered=True)
 	opcion = 0
 	cuentaIngresada = 0
 
