@@ -103,7 +103,9 @@ def formatearDatosUsuariosSoftguard(cursor_origin, cursor_destiny):
 	return nombre,apellido,ids
 
 def cargaTelefonosSoftguard(loaderFile):
-	point = ""
+	i = 1
+	flag = True
+	error = open("errores/telefonosSoftguard.txt","a")
 	for line in loaderFile.readlines():
 		os.system("clear")
 		posCadena = line.split(",")
@@ -117,22 +119,22 @@ def cargaTelefonosSoftguard(loaderFile):
 		tel_cposdigito = 0
 		tel_norden = 1
 		query_insert_tel = "INSERT INTO m_telefonos(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden) VALUES (%d,%d,'%s','%s','%s',%d,%d,%d,%d)" %(tel_iidcuenta, tel_iid, tel_cnombre, tel_cobservacion, tel_ctelefono, tel_ndiscado, tel_cpredigito, tel_cposdigito, tel_norden)
-		point += "."
-		print("Insertando registros", point)
-		if point == "....":
-			point = ""
 		try:
 			cursor_origin.execute(query_insert_tel)
 			db_origin.commit()
-			flag = True
+			print("[INSERTADO]: Posicion: ",i," | Cuenta: ",tel_iidcuenta)
 		except:
 			db_origin.rollback()
-			print("Error al insertar el registro en la cuenta ", tel_iidcuenta)
+			print("[ERROR]: Posicion: ",i," | Cuenta: ",tel_iidcuenta)
+			textoError = "Linea: ",i," | Contenido: ",line
+			textoError = str(textoError)
+			error.write("\n"+textoError)
 			flag = False
+		i+=1
 	if flag:
 		print("_____________________________________ Registros insertados con exito _____________________________________")
 	else:
-		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
+		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS. REVISE EL ARCHIVO DE ERRORES _____________________________________")
 	
 def cargaTelefonosBykom(loaderFile):
 	patronAlpha = re.compile("[A-Z]+")
@@ -167,30 +169,55 @@ def cargaTelefonosBykom(loaderFile):
 			error.write("\n"+textoError)
 			flag = False
 		i+=1
+	error.close()
 	if flag:
 		print("_____________________________________ Registros insertados con exito _____________________________________")
 	else:
 		print("_____________________________________ OCURRIO UN ERROR AL INSERTAR LOS REGISTROS _____________________________________")
 
-#def cargaUsuariosSoftguard(loaderFile):
-	# A desarrollar
 def cargaUsuariosBykom(loaderFile): #Esto insertara los datos en la tabla abrlusuarios en Bykom
 	os.system("clear")
+	error = open("errores/usuariosBykom.txt", "a")
 	i = 1
 	for line in loaderFile.readlines():
 		posCadena = line.split(",")
 		n_cuenta = int(posCadena[0].strip("("))
-		order_rl = obtenerID_CL(n_cuenta)
-		i += 1
-		#codigo_id  = Tipo de dato desconocido 
+		evalOrder = obtenerID_CL(n_cuenta)
+		if evalOrder != "Inexistente":
+			order_rl = int(evalOrder)
+		else:
+			order_rl = 0
+			textoError = "Posicion: ",i," No se encuentra ID en tabla | Contenido: ",line
+			textoError = str(textoError)
+			error.write("\n"+textoError)
+		codigo_id  = n_cuenta 
 		cod_us  = int(posCadena[3])
-		print("Posicion: ",i, " - ",order_rl, " - ",cod_us)
-		#user_id  = 
-	# clave  = 
-	# contraclave  = 
-	# datos01  = 
-	# tipouser  = 
-	# fechahora = 
+		query_clave = "SELECT cue_cclave FROM _datos WHERE cue_iid = %d" %(n_cuenta)
+		clave_consulta = cursor_origin.execute(query_clave)
+		if clave_consulta == "":
+		 	clave = "No tiene"
+		else:
+		 	clave = clave_consulta
+
+		contraclave  = "Consultar SoftGuard" 
+		tipouser  = 2 
+
+		query_insert_user = "INSERT INTO abrlusuarios(ORDER_RL, CODIGO_ID, COD_US,CLAVE, CONTRACLAVE, TIPOUSER) VALUES (%d,%d,%d,'%s','%s',%d)" %(order_rl,codigo_id,cod_us,clave,contraclave,tipouser)
+		
+		try:
+			cursor_destiny.execute(query_insert_user)
+			db_destiny.commit()
+			print("[INSERTADO]: Posicion: ",i," Cuenta: ",order_rl)
+			flag = True
+		except:
+			db_destiny.rollback()
+			print("[ERROR] Posicion: ",i," | Cuenta: ", order_rl)
+			textoError = "Linea: ",i," | Contenido: ",line
+			textoError = str(textoError)
+			error.write("\n"+textoError)
+			flag = False
+		i += 1
+
 
 def cargaZonasBykom(fileZonas):
 	os.system("clear")
@@ -240,9 +267,11 @@ def imprimeMenu():
 	print("6.- Carga masiva de Usuarios en Bykom") # Falta informacion en tabla
 	print("7.- Carga masiva de Telefonos en Softguard")
 	print("8.- Carga masiva de Telfonos en Bykom")
-	print("9.- Carga masiva de Usuarios en Softguard")
+	print("9.- Carga masiva de Usuarios en Bykom")
 	print("10.- Carga zonas en Bykom")
 	print("99.- Salir")
+	print()
+	print("[NOTA]: CARGAR PRIMERO PERSONAS EN BYKOM!")
 
 def limpiarPantallaTitular(mensaje):
 	os.system('clear')
@@ -305,9 +334,9 @@ if __name__ == '__main__':
 			loaderFileB = open("m_telefonos.sql", "r", encoding='UTF8')
 			cargaTelefonosBykom(loaderFileB)
 		elif opcion == 9:
-			limpiarPantallaTitular("_____________________________________ Carga masiva de Usuarios en Softguard _____________________________________")
+			limpiarPantallaTitular("_____________________________________ Carga masiva de Usuarios en Bykom _____________________________________")
 			loaderFileU = open("m_usuarios.sql", "r", encoding='latin-1')
-			cargaUsuariosSoftguard(loaderFileU)
+			cargaUsuariosBykom(loaderFileU)
 		elif opcion == 10:
 			limpiarPantallaTitular("_____________________________________ Carga zonas en Bykom _____________________________________")
 			loaderFileZ = open("zonas.sql", "r", encoding='latin-1')
